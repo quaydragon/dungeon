@@ -21,36 +21,44 @@ public class MedivalBuilderClass implements MedivalBuilder {
   private LevelHardness hardness;
   
   /**
+   * The MedivalBuilderClass builds the medival game. 
    * 
-   * @param levelNumber
-   * @param roomLimit
-   * @param monstersNumber
-   * @param treasuresNumber
+   * @param levelNumber gives the level the game is being created on
+   * @param roomLimit gives the limited number of rooms on a level
+   * @param monstersNumber gives the limited number of monsters on a level
+   * @param treasuresNumber gives the limited number of treasure on a level
    */
   public MedivalBuilderClass(int levelNumber,
       int roomLimit,
       int monstersNumber,
-      int treasuresNumber) {
+      int treasuresNumber) throws IllegalArgumentException {
+    
+    if (levelNumber < 0 
+        || roomLimit < 3 
+        || monstersNumber < 0 
+        || treasuresNumber < 0) {
+      
+      throw new 
+      IllegalArgumentException("Negative numbers or a roomlimit under 3 are impossible."); 
+    }
+          
     this.levelNumber = levelNumber;
     this.roomLimit = roomLimit;
     this.monstersNumber = monstersNumber;
     this.treasuresNumber = treasuresNumber;
-    
     this.roomCount = 0;
     this.monsterCount = 0;
     this.treasureCount = 0;
     this.complete = false;
-    
-    this.level = new Level(levelNumber);
-    
+    this.level = new Level(levelNumber);   
     this.levelHardnessDetermination();
-    
-    
-    //TODO: Throw exception because at certain levels 
-    //we need a certain number of rooms
     
   }
   
+  /**
+   * Determining the level of difficultly of the level.
+   * This is a dynamic feature.
+   */
   private void levelHardnessDetermination() {
    
     if (this.levelNumber <= 25) {
@@ -67,8 +75,10 @@ public class MedivalBuilderClass implements MedivalBuilder {
   @Override
   public void addRoom() {
     // creating the number of rooms
-    for (int i = 0; i < this.roomLimit + 1; i++) {
+    for (int i = 0; i < this.roomLimit; i++) {
       level.addRoom("Room Number: " + i);
+      System.out.println("Room Added: " + i);
+      this.roomCount += 1;
     }
     
   }
@@ -95,21 +105,18 @@ public class MedivalBuilderClass implements MedivalBuilder {
       int goblinPerRoom = Math.floorDiv(this.monstersNumber, this.roomLimit);
       int leftOverGoblin = this.monstersNumber - goblinPerRoom * this.roomLimit;
       
-      //TODO: May Delete
-      //add up the monsters used- in easy these things should check out
-      this.monsterCount = goblinPerRoom * this.roomLimit + leftOverGoblin;
-       
-      System.out.println("Number of Monsters: " + this.monstersNumber);
-      System.out.println("Monsters Used: " + this.monsterCount);
+ 
       //go through each room
-      for (int i = 0; i < this.roomLimit + 1; i++) {
+      for (int i = 0; i < this.roomLimit; i++) {
         for (int j = 0; j < goblinPerRoom; j++) {
           level.addMonster(i, goblin);
+          this.monsterCount += 1;
         }
       }
       //add the remaining goblins to the first room
       for (int x = 0; x < leftOverGoblin; x++) {
         level.addMonster(0, goblin);
+        this.monsterCount += 1;
       }
     } else if (this.hardness == LevelHardness.MEDIUM) {
       //subtracting 1 for the orc room being reserved
@@ -118,46 +125,43 @@ public class MedivalBuilderClass implements MedivalBuilder {
       int goblinsRemaining = (this.monstersNumber - 1) 
           - (goblinPerRoom * (this.roomLimit - 1));
       
-      System.out.println("For Medium Difficulty");
-      System.out.println("Goblins Used: " + goblinPerRoom * (this.roomLimit - 1));
-      
-      for (int i = 0; i < this.roomLimit; i++) {
+   
+      for (int i = 0; i < this.roomLimit - 1; i++) {
         for (int j = 0; j < goblinPerRoom; j++) {
           level.addMonster(i, goblin);
+          this.monsterCount += 1;
       
         }
         
       }
       
-      System.out.println("Goblins Remaing to be used: " + goblinsRemaining);
       
       for (int x = 0; x < goblinsRemaining; x++) {
         level.addMonster(0, goblin);
+        this.monsterCount += 1;
       }
     } else if (this.hardness == LevelHardness.HARD) {
       
       int goblinPerRoom = Math.floorDiv(this.monstersNumber - 2, this.roomLimit - 2);
       
-      System.out.println("GoblinPerRoom: " + goblinPerRoom);
+
       
       int goblinsRemaining = (this.monstersNumber - 2) 
           - (goblinPerRoom * (this.roomLimit - 2));
+
       
-      System.out.println("For Hard Difficulty");
-      System.out.println("Goblins Used: " + goblinPerRoom * (this.roomLimit - 2));
-      
-      for (int i = 0; i < this.roomLimit - 1; i++) {
+      for (int i = 0; i < this.roomLimit - 2; i++) {
         for (int j = 0; j < goblinPerRoom; j++) {
           level.addMonster(i, goblin);
+          this.monsterCount += 1;
       
         }
         
       }
-      
-      System.out.println("Goblins Remaing to be used: " + goblinsRemaining);
-      
+            
       for (int x = 0; x < goblinsRemaining; x++) {
         level.addMonster(0, goblin);
+        this.monsterCount += 1;
       }
       
     }
@@ -177,9 +181,11 @@ public class MedivalBuilderClass implements MedivalBuilder {
         20);
     if (this.hardness == LevelHardness.MEDIUM) {
       
-      level.addMonster(this.roomLimit, orc);
+      level.addMonster(this.roomLimit - 1, orc);
+      this.monsterCount += 1;
     } else if (this.hardness == LevelHardness.HARD) {
       level.addMonster(this.roomLimit - 1, orc);
+      this.monsterCount += 1;
     }
   
     
@@ -192,27 +198,27 @@ public class MedivalBuilderClass implements MedivalBuilder {
         "large, hideous man-like being that likes to eat humans for lunch",
         50);
     if (this.hardness == LevelHardness.HARD) {
-      level.addMonster(this.roomLimit, ogre);
+      level.addMonster(this.roomLimit - 1, ogre);
+      this.monsterCount += 1;
     } else if (this.hardness == LevelHardness.IMPOSSIBLE) {
       
       int ogrePerRoom = Math.floorDiv(this.monstersNumber, this.roomLimit);
       int leftOverOgre = this.monstersNumber - ogrePerRoom * this.roomLimit;
       
-      //TODO: May Delete
       //add up the monsters used- in easy these things should check out
       this.monsterCount = ogrePerRoom * this.roomLimit + leftOverOgre;
-       
-      System.out.println("Number of Monsters: " + this.monstersNumber);
-      System.out.println("Monsters Used: " + this.monsterCount);
+
       //go through each room
-      for (int i = 0; i < this.roomLimit + 1; i++) {
+      for (int i = 0; i < this.roomLimit; i++) {
         for (int j = 0; j < ogrePerRoom; j++) {
           level.addMonster(i, ogre);
+          this.monsterCount += 1;
         }
       }
       //add the remaining goblins to the first room
       for (int x = 0; x < leftOverOgre; x++) {
         level.addMonster(0, ogre);
+        this.monsterCount += 1;
       }
       
     }
@@ -234,18 +240,11 @@ public class MedivalBuilderClass implements MedivalBuilder {
   public void addPotion() {
     // split between all rooms but the last
     Treasure potion = new Treasure("a healing potion", 1);
-    
-    
-    //    level.addTreasure(levelNumber, lightSaber);
-    
-    //get floor treasure divided by three 
+   
     //distribute in each room 
     
     int treasurePerRoom = Math.floorDiv(this.treasuresNumber - 1, this.roomLimit - 1) / 3;
-    //    int leftOverGoblin = this.monstersNumber - goblinPerRoom * this.roomLimit;
-    
-    System.out.println("Number of potion per room: " + treasurePerRoom);
-
+  
     //go through each room
     for (int i = 0; i < this.roomLimit; i++) {
       for (int j = 0; j < treasurePerRoom; j++) {
@@ -254,43 +253,30 @@ public class MedivalBuilderClass implements MedivalBuilder {
     }
     
     this.treasureCount += treasurePerRoom * (this.roomLimit - 1);
-    
-    System.out.println("Treasure Count after potion");
-    
-    System.out.println(this.treasureCount);
+
     
   }
 
   @Override
   public void addGold() {
-    // split between all rooms but the last
+
     Treasure gold;
-    
-    
-    //    level.addTreasure(levelNumber, lightSaber);
     
     //get floor treasure divided by three 
     //distribute in each room 
     
     int treasurePerRoom = Math.floorDiv(this.treasuresNumber - 1, this.roomLimit - 1) / 3;
-    //    int leftOverGoblin = this.monstersNumber - goblinPerRoom * this.roomLimit;
     
-    System.out.println("Number of gold treasures per room: " + treasurePerRoom);
-
     //go through each room
     for (int i = 0; i < this.roomLimit; i++) {
       for (int j = 0; j < treasurePerRoom; j++) {
-        //specified value of gold for room
         gold = new Treasure("gold", i + 1);
         level.addTreasure(i, gold);
       }
     }
     
     this.treasureCount += treasurePerRoom * (this.roomLimit - 1);
-    
-    System.out.println("Treasure Count after gold");
-    
-    System.out.println(this.treasureCount);
+
     
   }
 
@@ -298,42 +284,26 @@ public class MedivalBuilderClass implements MedivalBuilder {
   public void addWeapon() {
     // split between all rooms but the last
     Treasure lightSaber = new Treasure("Ligh Saber Weapon", 10);
-    
-    
-    //    level.addTreasure(levelNumber, lightSaber);
-    
-    //get floor treasure divided by three 
     //distribute in each room 
     
     int treasurePerRoom = Math.floorDiv(this.treasuresNumber - 1, this.roomLimit - 1) / 3;
-    //    int leftOverGoblin = this.monstersNumber - goblinPerRoom * this.roomLimit;
-    
-    System.out.println("Number of weapons per room: " + treasurePerRoom);
-
+  
     //go through each room
     for (int i = 0; i < this.roomLimit; i++) {
       for (int j = 0; j < treasurePerRoom; j++) {
         level.addTreasure(i, lightSaber);
       }
     }
-    
+ 
     this.treasureCount += treasurePerRoom * (this.roomLimit - 1);
-    
-    System.out.println("Treasure Count after weapon");
-    
-    System.out.println(this.treasureCount);
     
   }
 
   @Override
   public void addSpecial() {
     Treasure exclusiveTreasure = new Treasure("Atomic Ray Gun", 100);
-    level.addTreasure(roomLimit, exclusiveTreasure);
+    level.addTreasure(roomLimit - 1, exclusiveTreasure);
     this.treasureCount += 1;
-    
-    System.out.println("Treasure Count after special");
-    
-    System.out.println(this.treasureCount);
     
   }
   
@@ -347,7 +317,24 @@ public class MedivalBuilderClass implements MedivalBuilder {
       System.out.println("This is the left over treasure: " + difference);
       for (int i = 0; i < difference; i++) {
         level.addTreasure(0, gold);
+        this.treasureCount += 1;
       }
+    }
+    
+  }
+  
+  /**
+   * Checking for illegal feature counts as the program ends.
+   * 
+   * @throws IllegalArgumentException thrown if feature numbers are not correct
+   */
+  private void checkIllegalStates() throws IllegalArgumentException {
+    if (this.roomCount != this.roomLimit) {
+      throw new IllegalStateException("Not enough rooms were created.");
+    } else if (this.monsterCount != this.monstersNumber) {
+      throw new IllegalStateException("Not enough monsters were created.");
+    } else if (this.treasureCount != this.treasuresNumber) {
+      throw new IllegalStateException("Not enough treasures were created.");
     }
     
   }
@@ -363,6 +350,7 @@ public class MedivalBuilderClass implements MedivalBuilder {
     this.addWeapon();
     this.addSpecial();
     this.checkForLeftOverTreasure();
+    this.checkIllegalStates();
     
     System.out.print(level.toString());
     

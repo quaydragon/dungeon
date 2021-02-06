@@ -13,8 +13,9 @@ public class MedivalBuilderTest {
   public MedivalBuilderClass impossible;
   
   /**
+   * Sets up the MedivalBuilderClass for tests. 
    * 
-   * @throws Exception
+   * @throws Exception if not constructed properly
    */
   @Before
   public void setUp() throws Exception {
@@ -61,6 +62,12 @@ public class MedivalBuilderTest {
   }
   
   @Test
+  public void testAddOgreHard() {
+    hard.addRoom();
+    hard.addOgre();
+  }
+  
+  @Test
   public void testSpecial() {
     easy.addRoom();
     easy.addSpecial();
@@ -85,6 +92,13 @@ public class MedivalBuilderTest {
   }
   
   @Test
+  public void testAddHuman() {
+    easy.addRoom();
+    easy.addHuman();
+  }
+  
+  
+  @Test
   public void testLeftOverTreasure() {
     easy.addRoom();
     easy.addSpecial();
@@ -101,7 +115,26 @@ public class MedivalBuilderTest {
     med.build();
     
   }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorLevel() {
+    new MedivalBuilderClass(-50, 4, 10, 75);
+  }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorRoom() {
+    new MedivalBuilderClass(50, 1, 10, 75);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorMonsters() {
+    new MedivalBuilderClass(50, 4, -10, 75);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorTreasure() {
+    new MedivalBuilderClass(50, 4, 10, -75);
+  }
 
 
 }
